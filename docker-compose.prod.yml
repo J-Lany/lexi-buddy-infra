@@ -1,0 +1,88 @@
+services:
+  # === Production PostgreSQL ===
+  prod_db:
+    image: postgres:16-alpine
+    container_name: lexi_buddy_prod_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - prod_net
+    volumes:
+      - prod_db_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # === Production Backend API ===
+  prod_api:
+    image: ghcr.io/j-lany/lexi-buddy-backend:main
+    container_name: lexi_buddy_prod_api
+    restart: unless-stopped
+    networks:
+      - prod_net
+    depends_on:
+      prod_db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@prod_db:5432/$POSTGRES_DB
+      JWT_SECRET: $JWT_SECRET
+      PORT: 4000
+    ports:
+      - "4000:4000"
+
+  # === Production Frontend (Next.js SSR) ===
+  prod_frontend:
+    image: ghcr.io/j-lany/lexi-buddy-frontend:main
+    container_name: lexi_buddy_prod_frontend
+    restart: unless-stopped
+    networks:
+      - prod_net
+    depends_on:
+      prod_api:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: http://prod_api:4000
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000',()=>process.exit(0)).on('error',()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # === Production Telegram Bot ===
+  prod_bot:
+    image: ghcr.io/j-lany/lexi-buddy-bot:main
+    container_name: lexi_buddy_prod_bot
+    restart: unless-stopped
+    networks:
+      - prod_net
+    depends_on:
+      prod_api:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
+      API_BASE_URL: http://prod_api:4000
+    expose:
+      - "8080"
+
+volumes:
+  prod_db_data:
+
+networks:
+  prod_net:

@@ -4,8 +4,16 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
+    inputs:
+      target:
+        description: "Choose deployment target"
+        required: true
+        type: choice
+        options:
+          - deploy-main
+          - deploy-develop
   repository_dispatch:
-    types: [deploy]
+    types: [deploy-main, deploy-develop]
 
 jobs:
   deploy:
@@ -15,7 +23,12 @@ jobs:
       - name: Checkout infra repo
         uses: actions/checkout@v4
 
-      - name: SSH into server and deploy
+      # ---------- PROD DEPLOY ----------
+      - name: Deploy PRODUCTION
+        if: >
+          (github.event_name == 'repository_dispatch' && github.event.action == 'deploy-main') ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'deploy-main') ||
+          (github.event_name == 'push' && github.ref == 'refs/heads/main')
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -23,19 +36,42 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             set -e
-
             cd /root/lexi-buddy-infra
-            echo "🌀 Pulling latest changes..."
             git pull
 
-            echo "🧹 Stopping old containers (ignore errors if none exist)..."
-            docker-compose down --remove-orphans || true
+            echo "Stopping old prod containers..."
+            docker compose -f docker-compose.prod.yml down --remove-orphans
 
-            echo "⬇️ Pulling new images..."
-            docker-compose pull
+            echo "Pulling new prod images..."
+            docker compose -f docker-compose.prod.yml pull
 
-            echo "🚀 Starting updated containers..."
-            docker-compose up -d
+            echo "Starting prod..."
+            docker compose -f docker-compose.prod.yml up -d
 
-            echo "✅ Containers running:"
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+      # ---------- STAGING DEPLOY ----------
+      - name: Deploy STAGING
+        if: >
+          (github.event_name == 'repository_dispatch' && github.event.action == 'deploy-develop') ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'deploy-develop')
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/lexi-buddy-infra
+            git pull
+
+            echo "Stopping old staging containers..."
+            docker compose -f docker-compose.staging.yml down --remove-orphans
+
+            echo "Pulling new staging images..."
+            docker compose -f docker-compose.staging.yml pull
+
+            echo "Starting staging..."
+            docker compose -f docker-compose.staging.yml up -d
+
             docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

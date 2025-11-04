@@ -17,6 +17,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    command: ["postgres", "-c", "listen_addresses=*"]
+
 
   # === Staging Backend API (NestJS) ===
   staging_api:

@@ -53,6 +53,7 @@ services:
     environment:
       NODE_ENV: staging
       PORT: 3001
+      NEXT_PUBLIC_API_URL: http://46.16.14.86:4001
     ports:
       - "3001:3001"
 

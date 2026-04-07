@@ -36,7 +36,7 @@ services:
       NODE_ENV: staging
       PORT: 4001
     ports:
-      - "4001:4001"
+      - "127.0.0.1:4001:4001"
 
   # === Staging Frontend (Next.js) ===
   staging_frontend:
@@ -53,9 +53,9 @@ services:
     environment:
       NODE_ENV: staging
       PORT: 3001
-      NEXT_PUBLIC_API_URL: http://46.16.14.86:4001
+      NEXT_PUBLIC_API_URL: https://api-staging.lexi-buddy.com
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
 
   # === Staging Telegram Bot ===
   staging_bot:

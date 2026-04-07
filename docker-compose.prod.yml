@@ -36,7 +36,7 @@ services:
       JWT_SECRET: $JWT_SECRET
       PORT: 4000
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
 
   # === Production Frontend (Next.js SSR) ===
   prod_frontend:
@@ -53,9 +53,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      NEXT_PUBLIC_API_URL: http://prod_api:4000
+      NEXT_PUBLIC_API_URL: https://api.lexi-buddy.com
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000',()=>process.exit(0)).on('error',()=>process.exit(1))\""]
       interval: 15s

@@ -47,6 +47,9 @@ jobs:
 
             echo "Starting prod..."
             docker compose -f docker-compose.prod.yml up -d
+            
+            echo "Cleaning old unused images..."
+            docker image prune -af --filter "until=240h"
 
             docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
@@ -73,5 +76,8 @@ jobs:
 
             echo "Starting staging..."
             docker compose -f docker-compose.staging.yml up -d
+            
+            echo "Cleaning old unused images..."
+            docker image prune -af --filter "until=240h"
 
             docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

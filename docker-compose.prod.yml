@@ -30,7 +30,7 @@ services:
       - .env
     environment:
       NODE_ENV: production
-    command: sh -lc "npx prisma migrate deploy"
+    command: sh -lc "npm run db:migrate:deploy"
     restart: "no"
 
   prod_seed:
@@ -44,7 +44,7 @@ services:
       - .env
     environment:
       NODE_ENV: production
-    command: sh -lc "npx prisma db seed"
+    command: sh -lc "npm run db:seed"
     restart: "no"
 
   # === Production Backend API ===

@@ -1,3 +1,4 @@
+name: lexi-buddy-staging
 services:
   # === Staging PostgreSQL ===
   staging_db:
@@ -76,6 +77,7 @@ services:
 
 volumes:
   staging_db_data:
+    name: lexi_buddy_staging_db_data
 
 networks:
   staging_net:

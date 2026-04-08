@@ -1,3 +1,4 @@
+name: lexi-buddy-prod
 services:
   # === Production PostgreSQL ===
   prod_db:
@@ -83,6 +84,7 @@ services:
 
 volumes:
   prod_db_data:
+    name: lexi_buddy_prod_db_data
 
 networks:
   prod_net:

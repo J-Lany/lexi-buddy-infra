@@ -19,6 +19,34 @@ services:
       timeout: 5s
       retries: 5
 
+  prod_migrate:
+    image: ghcr.io/j-lany/lexi-buddy-backend:main
+    networks:
+      - prod_net
+    depends_on:
+      prod_db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+    command: sh -lc "npx prisma migrate deploy"
+    restart: "no"
+
+  prod_seed:
+    image: ghcr.io/j-lany/lexi-buddy-backend:main
+    networks:
+      - prod_net
+    depends_on:
+      prod_db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+    command: sh -lc "npx prisma db seed"
+    restart: "no"
+
   # === Production Backend API ===
   prod_api:
     image: ghcr.io/j-lany/lexi-buddy-backend:main

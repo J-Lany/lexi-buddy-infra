@@ -20,6 +20,33 @@ services:
       retries: 5
     command: ["postgres", "-c", "listen_addresses=*"]
 
+  staging_migrate:
+    image: ghcr.io/j-lany/lexi-buddy-backend:develop
+    networks:
+      - staging_net
+    depends_on:
+      staging_db:
+        condition: service_healthy
+    env_file:
+      - .env.staging
+    environment:
+      NODE_ENV: staging
+    command: sh -lc "npx prisma migrate deploy"
+    restart: "no"
+
+  staging_seed:
+    image: ghcr.io/j-lany/lexi-buddy-backend:develop
+    networks:
+      - staging_net
+    depends_on:
+      staging_db:
+        condition: service_healthy
+    env_file:
+      - .env.staging
+    environment:
+      NODE_ENV: staging
+    command: sh -lc "npx prisma db seed"
+    restart: "no"
 
   # === Staging Backend API (NestJS) ===
   staging_api:

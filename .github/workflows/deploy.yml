@@ -45,8 +45,17 @@ jobs:
             echo "Pulling new prod images..."
             docker compose -f docker-compose.prod.yml pull
 
-            echo "Starting prod..."
-            docker compose -f docker-compose.prod.yml up -d
+            echo "Starting prod DB..."
+            docker compose -f docker-compose.prod.yml up -d prod_db
+            
+            echo "Running prod migrations..."
+            docker compose -f docker-compose.prod.yml run --rm prod_migrate
+            
+            echo "Running prod seed..."
+            docker compose -f docker-compose.prod.yml run --rm prod_seed
+            
+            echo "Starting prod app services..."
+            docker compose -f docker-compose.prod.yml up -d prod_api prod_frontend prod_bot
             
             echo "Cleaning old unused images..."
             docker image prune -af --filter "until=240h"
@@ -74,8 +83,17 @@ jobs:
             echo "Pulling new staging images..."
             docker compose -f docker-compose.staging.yml pull
 
-            echo "Starting staging..."
-            docker compose -f docker-compose.staging.yml up -d
+            echo "Starting staging DB..."
+            docker compose -f docker-compose.staging.yml up -d staging_db
+            
+            echo "Running staging migrations..."
+            docker compose -f docker-compose.staging.yml run --rm staging_migrate
+            
+            echo "Running staging seed..."
+            docker compose -f docker-compose.staging.yml run --rm staging_seed
+            
+            echo "Starting staging app services..."
+            docker compose -f docker-compose.staging.yml up -d staging_api staging_frontend staging_bot
             
             echo "Cleaning old unused images..."
             docker image prune -af --filter "until=240h"

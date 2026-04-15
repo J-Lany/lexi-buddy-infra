@@ -85,23 +85,6 @@ services:
     ports:
       - "127.0.0.1:3001:3001"
 
-  # === Staging Telegram Bot ===
-  staging_bot:
-    image: ghcr.io/j-lany/lexi-buddy-bot:develop
-    container_name: lexi_buddy_staging_bot
-    restart: unless-stopped
-    networks:
-      - staging_net
-    depends_on:
-      staging_api:
-        condition: service_started
-    env_file:
-      - .env.staging
-    environment:
-      NODE_ENV: staging
-    ports:
-      - "8081:8080"
-
 volumes:
   staging_db_data:
     name: lexi_buddy_staging_db_data

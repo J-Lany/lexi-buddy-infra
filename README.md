@@ -14,7 +14,7 @@
  - Посмотреть все compose-проекты:
      + docker compose ls
  - Посмотреть последние 100 строк логов контейнера (на примере lexi_buddy_staging_api):
-     + docker logs lexi_buddy_staging_bot --tail 100
+     + docker logs lexi_buddy_staging_api --tail 100
  - Смотреть логи контейнера в реальном времени (на примере lexi_buddy_staging_api):
      + docker logs -f lexi_buddy_staging_api
  - Посмотреть последние 100 строк логов через compose: 

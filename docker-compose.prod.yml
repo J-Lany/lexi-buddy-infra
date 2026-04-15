@@ -91,25 +91,6 @@ services:
       timeout: 5s
       retries: 3
 
-  # === Production Telegram Bot ===
-  prod_bot:
-    image: ghcr.io/j-lany/lexi-buddy-bot:main
-    container_name: lexi_buddy_prod_bot
-    restart: unless-stopped
-    networks:
-      - prod_net
-    depends_on:
-      prod_api:
-        condition: service_started
-    env_file:
-      - .env
-    environment:
-      NODE_ENV: production
-      TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
-      API_BASE_URL: http://prod_api:4000
-    expose:
-      - "8080"
-
 volumes:
   prod_db_data:
     name: lexi_buddy_prod_db_data
